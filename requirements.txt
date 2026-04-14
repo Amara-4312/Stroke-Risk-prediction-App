@@ -7,4 +7,3 @@ seaborn
 joblib
 streamlit
 xgboost
-os
