@@ -189,33 +189,61 @@ streamlit run app.py
 
 The application requires the saved model and scaler files referenced in `app.py`.
 
-### Model Development and Deployment
+## Model Development
 
-The application uses an **XGBoost Classifier (`XGBClassifier`)** trained for binary stroke classification.
+The project evaluated four supervised machine-learning algorithms:
 
-The trained estimator is saved using Joblib and loaded into a Streamlit application alongside a separate preprocessing scaler.
+- Logistic Regression
+- Random Forest
+- Gradient Boosting
+- XGBoost (`XGBClassifier`)
 
-During prediction, the application transforms user-provided health and demographic information, obtains the model's estimated probability for the positive stroke class, and applies a classification threshold of 0.30.
+The cleaned dataset contained **5,109 observations**, including 249 stroke-positive cases, and 17 predictor columns.
 
-The interface also displays global feature-importance scores from the trained model.
+An 80:20 stratified train–test split was used to preserve the distribution of the outcome classes.
 
-The model remains an exploratory research prototype and has not been clinically validated.
+The training set contained 4,087 observations, while the test set contained 1,022 observations, including 50 stroke-positive cases.
+
+To address class imbalance, SMOTE was applied to the training data only, increasing both training classes to 3,888 observations. The features were subsequently standardised using `StandardScaler`.
+
+The final deployed model is an XGBoost classifier configured with 200 estimators, maximum tree depth of 4 and learning rate of 0.05. A class-weighting parameter was also used.
+
+The fitted XGBoost model and scaler were saved as Joblib files for integration into the Streamlit application.
 
 ## Model Evaluation
 
-The modelling notebook contains the experiments used during model development.
+Models were evaluated on the held-out test set using classification metrics and ROC-AUC.
 
-Before publishing quantitative model-performance claims, the final estimator and its results should be verified.
+| Model | Accuracy | Stroke Precision | Stroke Recall | Stroke F1 | ROC-AUC |
+|---|---:|---:|---:|---:|---:|
+| Logistic Regression | 0.93 | 0.35 | 0.42 | 0.38 | 0.820 |
+| Random Forest | 0.94 | 0.08 | 0.02 | 0.03 | 0.777 |
+| Gradient Boosting | 0.93 | 0.20 | 0.16 | 0.18 | 0.803 |
+| XGBoost | 0.74 | 0.12 | 0.68 | 0.20 | 0.789 |
 
-Relevant metrics include:
+### Interpretation
 
-- Precision and recall for the stroke-positive class
-- F1-score
-- Confusion matrix
-- ROC-AUC and precision–recall analysis
-- Performance under the selected classification threshold
+The results demonstrate how model performance depends on the evaluation metric selected.
 
-Particular attention should be given to class imbalance and the consequences of false-positive and false-negative classifications.
+Random Forest achieved the highest overall accuracy but identified very few stroke-positive cases. Logistic Regression produced the highest ROC-AUC and stroke-class F1-score among the reported experiments.
+
+XGBoost achieved the highest recall for the stroke-positive class, detecting approximately 68% of positive test observations, but with low precision of approximately 12%.
+
+This illustrates the challenge of balancing false negatives and false positives when modelling an infrequent health outcome.
+
+### Deployment Threshold
+
+The Streamlit application uses a probability threshold of 0.30 to determine its displayed classification.
+
+The performance metrics above were obtained using the models' default prediction thresholds. They therefore do not represent independently verified performance at the application's deployed threshold.
+
+### Evaluation Limitations
+
+The results are exploratory rather than externally validated clinical performance estimates.
+
+The XGBoost experiment combined SMOTE with additional positive-class weighting. This may have overemphasised the minority class and should be assessed through further experiments.
+
+Threshold selection, probability calibration and independent validation also remain necessary before any clinical interpretation of model outputs.
 
 ## Limitations
 
