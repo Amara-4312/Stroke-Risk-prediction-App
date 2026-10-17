@@ -189,6 +189,18 @@ streamlit run app.py
 
 The application requires the saved model and scaler files referenced in `app.py`.
 
+### Model Development and Deployment
+
+The application uses an **XGBoost Classifier (`XGBClassifier`)** trained for binary stroke classification.
+
+The trained estimator is saved using Joblib and loaded into a Streamlit application alongside a separate preprocessing scaler.
+
+During prediction, the application transforms user-provided health and demographic information, obtains the model's estimated probability for the positive stroke class, and applies a classification threshold of 0.30.
+
+The interface also displays global feature-importance scores from the trained model.
+
+The model remains an exploratory research prototype and has not been clinically validated.
+
 ## Model Evaluation
 
 The modelling notebook contains the experiments used during model development.
